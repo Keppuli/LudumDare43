@@ -18,7 +18,7 @@ public class UIManager : MonoBehaviour {
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
 
         buttonUpMaster.SetActive(false);
         buttonDownMaster.SetActive(false);
@@ -45,5 +45,10 @@ public class UIManager : MonoBehaviour {
     public void ShowRightButton()
     {
         buttonRightMaster.SetActive(true);
+    }
+    public void HideSelectButtons()
+    {
+        buttonRightMaster.SetActive(false);
+        buttonLeftMaster.SetActive(false);
     }
 }

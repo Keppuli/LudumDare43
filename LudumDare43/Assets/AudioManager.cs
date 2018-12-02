@@ -7,6 +7,11 @@ public class AudioManager : MonoBehaviour {
 
     AudioSource aSource;
     public AudioClip sacrifice;
+    public AudioClip lighting;
+    public AudioClip soul;
+    public AudioClip growl;
+    public AudioClip priestDie;
+    public AudioClip priestEscape;
 
     void Awake()
     {
@@ -15,15 +20,38 @@ public class AudioManager : MonoBehaviour {
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
     }
 
     void Start () {
         aSource = GetComponent<AudioSource>();
 	}
-
-    public void Play()
+    public void Stop()
+    {
+        aSource.clip = null;
+    }
+    public void PlaySacrifice()
     {
         aSource.PlayOneShot(sacrifice);
+    }
+    public void PlayLighting()
+    {
+        aSource.PlayOneShot(lighting);
+    }
+    public void PlayGrowl()
+    {
+        aSource.PlayOneShot(growl);
+    }
+    public void PlaySoul()
+    {
+        aSource.PlayOneShot(soul);
+    }
+    public void PlayPriestDie()
+    {
+        aSource.PlayOneShot(priestDie);
+    }
+    public void PlayPriestEscape()
+    {
+        aSource.PlayOneShot(priestEscape);
     }
 }

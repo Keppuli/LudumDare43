@@ -6,6 +6,10 @@ TextureImporter:
     21300002: priest_1
     21300004: priest_2
     21300006: priest_3
+    21300008: priest_4
+    21300010: priest_5
+    21300012: priest_6
+    21300014: priest_7
   externalObjects: {}
   serializedVersion: 7
   mipmaps:
@@ -92,6 +96,86 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
+        y: 37
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c998400ac29484c4f84dce0fe8c74960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: priest_1
+      rect:
+        serializedVersion: 2
+        x: 27
+        y: 37
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dae59e0209785ff4d89e64d724a816a8
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: priest_2
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 37
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bdeb44e76f8e58d488ef6e4e142a3aaf
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: priest_3
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 37
+        width: 27
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a856c21af05cef43a1e753eb88e48a6
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: priest_4
+      rect:
+        serializedVersion: 2
+        x: 0
         y: 0
         width: 27
         height: 37
@@ -102,13 +186,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8f4c5ad3aeee60140b585606f96a0f95
+      spriteID: 318d8d8074820d94f84eef10890b5131
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: priest_1
+      name: priest_5
       rect:
         serializedVersion: 2
         x: 27
@@ -122,13 +206,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7ebe3e77997096e4882ea9748d733d21
+      spriteID: 6222bbc968987a54daa29882bec51de6
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: priest_2
+      name: priest_6
       rect:
         serializedVersion: 2
         x: 54
@@ -142,13 +226,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3df62c965b62d8b4e8688caae3f922b1
+      spriteID: d8a20f941e3957642959d2c99f823de0
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: priest_3
+      name: priest_7
       rect:
         serializedVersion: 2
         x: 81
@@ -162,7 +246,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 300f58433ea94f148b4696d6d362d33c
+      spriteID: 85159b5184fc7cc458befad435790dbb
       vertices: []
       indices: 
       edges: []

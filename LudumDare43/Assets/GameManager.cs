@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour {
 
     public static GameManager instance = null; // Singleton
@@ -14,10 +14,14 @@ public class GameManager : MonoBehaviour {
     public GameObject citizen;
     public GameObject citizenWoman;
     public GameObject citizenChild;
+    public GameObject demands;
+    public GameObject godRays;
 
+    bool gameEnded;
 
     public GameObject sacrificeCitizen;
     public GameObject lighting;
+    public GameObject fireSoul;
 
     public int citizenAmount;
     public int manAmount;
@@ -40,8 +44,9 @@ public class GameManager : MonoBehaviour {
     float spawnTimerRight;
     [SerializeField]
     float spawnTimerNeutral;
-    [SerializeField]
-    float sunPower;
+    public float sunPower = 1f;
+    public float sunPowerOld = 1f; // Start x1
+
     void Awake()
     {
         // Singleton
@@ -49,31 +54,24 @@ public class GameManager : MonoBehaviour {
             instance = this;
         else if (instance != this)
             Destroy(gameObject);
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
     }
     void Start () {
         spawnTimerLeft = spawnTime;
         spawnTimerRight = spawnTime;
     }
-    void SpawnCurse()
+    public void EndGame()
     {
-        if (citizenList.Count < 0)
-        { 
-            int rnd = Random.Range(1, citizenList.Count);
-            Instantiate(lighting, citizenList[rnd].transform.position,Quaternion.identity);
-            Destroy(citizenList[rnd]);
-            curseTimer = curseTime;
-        }
+        gameEnded = true;
+        demands.SetActive(false);
+        UIManager.instance.HideButtonsVertical();
+        UIManager.instance.HideSelectButtons();
+        UIManager.instance.buttonLeftMaster.SetActive(false);
+        godRays.SetActive(true);
     }
-	void Update () {
-
-        Debug.Log(citizenList.Count);
+    void Update () {
         UpdateUI();
-
-        if (sunPower <= 0)
-            curseTimer -= Time.deltaTime;
-        if (curseTimer <= 0)
-            SpawnCurse();
+        UpdateSun();
 
         if (spawnTimerLeft > 0)
             spawnTimerLeft -= Time.deltaTime;
@@ -83,7 +81,7 @@ public class GameManager : MonoBehaviour {
         // Spawn neutral citizen
         if (spawnTimerNeutral > 0 && citizenList.Count < citizenAmount)
             spawnTimerNeutral -= Time.deltaTime;
-        if (spawnTimerNeutral <= 0 && citizenList.Count < citizenAmount) // Active citizen vs max citizen
+        if (spawnTimerNeutral <= 0) // Active citizen vs max citizen
             SpawnRandomCitizen();
 
         // Keep 4 citizen spawned on both sides
@@ -92,17 +90,59 @@ public class GameManager : MonoBehaviour {
         if (citizenListRight.Count < 4 && spawnTimerRight <= 0 && citizenAmount > 0)
             SpawnCitizenRight();
 
-        // Pause
-        if (Input.GetKeyDown("space"))
-            TogglePause();
-        if (Input.GetKeyDown("a") && sacrificeCitizen == null)  //(Input.GetAxis("Horizontal") < 0) 
-            SelectLeftCitizen();
-        if (Input.GetKeyDown("d") && sacrificeCitizen == null)  //(Input.GetAxis("Horizontal") > 0) 
-            SelectRightCitizen();
-        if (Input.GetKeyDown("w") && sacrificeCitizen != null)
-            Sacrifice();
-        if (Input.GetKeyDown("s") && sacrificeCitizen != null)
-            ReleaseCitizen();
+        if (!gameEnded)
+        {
+           
+            if (Input.GetKeyDown("a") || Input.GetKeyDown(KeyCode.LeftArrow))  //(Input.GetAxis("Horizontal") < 0) 
+            {
+                if (sacrificeCitizen == null) SelectLeftCitizen();
+            }
+            if (Input.GetKeyDown("d") || Input.GetKeyDown(KeyCode.RightArrow))  //(Input.GetAxis("Horizontal") > 0) 
+            {
+                if (sacrificeCitizen == null) SelectRightCitizen();
+            }
+            if (Input.GetKeyDown("w") || Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                if (sacrificeCitizen != null) Sacrifice();
+            }
+            if (Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.DownArrow) && sacrificeCitizen != null)
+            {
+                if (sacrificeCitizen != null) ReleaseCitizen();
+            }
+            if (Input.GetKeyDown(KeyCode.F1))
+                RestartGame();
+        }
+    }
+ 
+    public void SpawnCurse()
+    {
+        int rndLR = Random.Range(1, 3);
+        if (rndLR == 1 && citizenListLeft.Count > 0)
+        {
+            CameraManager.instance.GetComponent<CameraManager>().shakeDuration = 0.4f;
+            CameraManager.instance.GetComponent<CameraManager>().shakeAmount = 20f;
+            AudioManager.instance.PlayLighting();
+            int rnd = Random.Range(1, citizenListLeft.Count);
+            Instantiate(lighting, citizenListLeft[rnd].transform.position, Quaternion.identity);
+            GameObject target = citizenListLeft[rnd];
+            citizenListLeft.RemoveAt(rnd); // Clean the list
+            Instantiate(GameManager.instance.fireSoul, target.transform.position, Quaternion.identity);
+            target.GetComponent<Citizen>().ReleasePosition();
+            Destroy(target);
+        }
+        else if (rndLR == 2 && citizenListRight.Count > 0)
+        {
+            CameraManager.instance.GetComponent<CameraManager>().shakeDuration = 0.4f;
+            CameraManager.instance.GetComponent<CameraManager>().shakeAmount = 20f;
+            AudioManager.instance.PlayLighting();
+            int rnd = Random.Range(1, citizenListRight.Count);
+            Instantiate(lighting, citizenListRight[rnd].transform.position, Quaternion.identity);
+            GameObject target = citizenListRight[rnd];
+            citizenListRight.RemoveAt(rnd); // Clean the list
+            Instantiate(GameManager.instance.fireSoul, target.transform.position, Quaternion.identity);
+            target.GetComponent<Citizen>().ReleasePosition();
+            Destroy(target);
+        }
     }
     public void CheckCitizenList()
     {
@@ -111,40 +151,63 @@ public class GameManager : MonoBehaviour {
             // Remove empty indexes if exceeding global citizen amount
             if (citizenList[i] == null)
             {
-                Debug.Log("Removing " + i);
-                citizenList.RemoveAt(i);
-            // Fill empty citizenslots with new citizen
-            //if (citizenList[i] == null)
-            //   citizenList.Insert(i, RandomCitizenType());
+                //citizenList.RemoveAt(i);
+                citizenList.RemoveAll(x => x == null);
+                // Fill empty citizenslots with new citizen
+                //if (citizenList[i] == null)
+                //   citizenList.Insert(i, RandomCitizenType());
             }
         }
- 
     }
+    
     void UpdateUI()
     {
         if (sacrificeCitizen)
+        {
             UIManager.instance.ShowButtonsVertical();
+            UIManager.instance.HideSelectButtons();
+        }
         else
+        {
             UIManager.instance.HideButtonsVertical();
-        if (positionsLeft[4].GetComponent<Position>().CheckStatus())
-            UIManager.instance.ShowLeftButton();
-        if (positionsRight[4].GetComponent<Position>().CheckStatus())
-            UIManager.instance.ShowRightButton();
+            if (positionsLeft[4].GetComponent<Position>().CheckStatus())
+                UIManager.instance.ShowLeftButton();
+            if (positionsRight[4].GetComponent<Position>().CheckStatus())
+                UIManager.instance.ShowRightButton(); 
+        }
+      
     }
     void Sacrifice()
     {
-        sunPower += sacrificeCitizen.GetComponent<Citizen>().power;
+        if (Demand.instance.CheckDemand(sacrificeCitizen))
+            // Do something bad if sacrifice is wrong
+        sacrificeCitizen.GetComponent<Citizen>().ReleasePosition();
         citizenAmount -= 1;
-        AudioManager.instance.Play();
-        UpdateSun();
-        Demand.
+        AudioManager.instance.PlaySacrifice();
+        Instantiate(GameManager.instance.fireSoul, sacrificeCitizen.transform.position, Quaternion.identity);
         Destroy(sacrificeCitizen);
+    }
+    public void AddSunPower(int amount)
+    {
+        sunPowerOld = sunPower;
+        sunPower += amount;
+        PyramidLight.instance.UpdateSprite();
+        Priest.instance.CheckPoints();
     }
     void UpdateSun()
     {
+        if (sunPower > 50)
+        {
+            CameraManager.instance.GetComponent<CameraManager>().shakeDuration = 2f;
+            CameraManager.instance.GetComponent<CameraManager>().shakeAmount = 1f+ (sunPower/100);
+        }
+        float step = 100f;
+        Vector3 scaleOld = sunMaster.localScale;
+        float increase = 1f +sunPowerOld/30f;
+        Vector3 scaleNew = new Vector3(sunMaster.transform.position.x + increase, sunMaster.transform.position.y + increase, 0f);
         // Increase sun size
-        sunMaster.localScale += new Vector3(.1f,.1f);
-        sunMaster.position += new Vector3(0f, .2f);
+        sunMaster.localScale = Vector3.Lerp(scaleNew, scaleOld, Time.deltaTime * step);
+        //sunMaster.localScale += new Vector3(.1f,.1f);
     }
     void SelectLeftCitizen()
     {
@@ -166,6 +229,11 @@ public class GameManager : MonoBehaviour {
 
     void ReleaseCitizen()
     {
+        for (int i = 0; i < citizenList.Count; i++)
+        {
+            if (citizenList[i] == sacrificeCitizen)
+                citizenList.RemoveAt(i);
+        }
         sacrificeCitizen.GetComponent<Citizen>().MoveToReleasePosition();
         sacrificeCitizen.GetComponent<Citizen>().sr.sortingOrder = 1;
         sacrificeCitizen = null;
@@ -247,5 +315,10 @@ public class GameManager : MonoBehaviour {
             Time.timeScale = 0;
         else
             Time.timeScale = 1;
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 }

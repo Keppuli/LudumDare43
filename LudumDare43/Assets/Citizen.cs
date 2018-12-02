@@ -5,7 +5,7 @@ using UnityEngine;
 public class Citizen : MonoBehaviour {
 
     public SpriteRenderer sr;
-
+    Animator animator;
     public AudioClip dieSound;
     public float moveSpeed = 1f;
     public enum Side {left,right};
@@ -17,40 +17,52 @@ public class Citizen : MonoBehaviour {
     public int myPosIndex;
     public int myCitizenIndex;
     public bool atTheFinalPosition;
-    public int power;
+
 
     void Awake () {
         sr = GetComponent<SpriteRenderer>();
     }
     private void Start()
     {
+        animator = GetComponent<Animator>();
         // Flip sprite when spawning to the right side
         if (side == Side.right)
             FlipSprite();
     }
     void Update () {
         var d = Vector3.Distance(transform.position, myPosObj.transform.position);
+
         if ((d < .1f) && myPosIndex == 4)
             atTheFinalPosition = true;
         else if (d < .1f)
         {
             if (myPosObj.name == "PosSpawnLeft" || myPosObj.name == "PosSpawnRight")
                 Destroy(gameObject);
-
-            else if (myPosObj.name == "PositionRelease")
-            {
-                MoveOffScreenLeft();
-                if (side == Side.left)
-                    FlipSprite();
-            }
-            else if (myPosIndex != 4 && !CheckNextPositionAvailability()) // Check if false
+           
+            if (myPosIndex != 4 && !CheckNextPositionAvailability()) // Check if false
             {
                 ReserveNextPosition();
                 ReleaseCurrentPosition();
                 MoveToNextPosition();
             }
         }
+        if (myPosObj.name == "PositionRelease")
+        {
+            if (d < .1f)
+            {
+                if (side == Side.right)
+                    MoveOffScreenLeft();
+                if (side == Side.left)
+                    MoveOffScreenRight();
+            }
 
+        }
+        /*
+        if (d < .1f)
+            animator.SetBool("Idle",true);
+        else
+            animator.SetBool("Idle", false);
+        */
     }
     private void FixedUpdate()
     {
@@ -84,7 +96,7 @@ public class Citizen : MonoBehaviour {
     void ReleaseCurrentPosition()
     {
         // Only if myPos exists
-        if (myPosObj != null)
+        if (myPosObj != null || myPosObj.name != "PosSpawnLeft" || myPosObj.name != "PosSpawnRight")
         {
             myPosObj.GetComponent<Position>().ReleasePosition();
         }
@@ -124,10 +136,16 @@ public class Citizen : MonoBehaviour {
     }
     private void OnDestroy() // Before destroying lets do some things
     {
+       
         // Clean list
         GameManager.instance.CheckCitizenList();
         // Also spawn shit
     }
+    public void ReleasePosition()
+    {
+        ReleaseCurrentPosition();
+    }
+    
 
     void FlipSprite() 
     {
